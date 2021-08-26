@@ -7,23 +7,23 @@ import (
 )
 
 var mGetAPI = map[string]echo.HandlerFunc{
-	"/": get.Test,
+	"/api/test": get.Test,
 }
 
 var mPostAPI = map[string]echo.HandlerFunc{
-	"/": post.DrawImage,
+	"/api/test": post.DrawImage,
 }
 
 var mPutAPI = map[string]echo.HandlerFunc{
-	"/": nil,
+	"/api/test": nil,
 }
 
 var mDeleteAPI = map[string]echo.HandlerFunc{
-	"/": nil,
+	"/api/test": nil,
 }
 
 var mPatchAPI = map[string]echo.HandlerFunc{
-	"/": nil,
+	"/api/test": nil,
 }
 
 // ---------------------------------------- //

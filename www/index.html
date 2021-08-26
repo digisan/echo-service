@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <link rel="stylesheet" href="style.css">
+        <script src="https://unpkg.com/vue@next"></script>
+        <script src="https://unpkg.com/mitt/dist/mitt.umd.js"></script>
+    </head>
+    <body>
+        <p>HELLO WORLD, text send to other, image for self usage</p>
+        <div id="app"></div>
+        <div id="app1"></div>
+        <script type="module">
+        import app from './js/component1.js'
+        import app1 from './js/component2.js'
+        const {createApp} = Vue;
+        createApp(app).mount('#app');
+        Vue.createApp(app1).mount("#app1");
+    </script>
+    </body>
+</html>

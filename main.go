@@ -49,8 +49,6 @@ func waitShutdown(e *echo.Echo) {
 	}()
 }
 
-
-
 func hostHTTP(done chan<- string) {
 	go func() {
 		defer func() { done <- "HTTP Shutdown Successfully" }()
@@ -71,6 +69,7 @@ func hostHTTP(done chan<- string) {
 		}))
 
 		hookPathHandler(e) // hook each path-handler
+		hookStatic(e)      // host static file/folder
 		waitShutdown(e)    // waiting for shutdown
 
 		if err := e.Start(fmt.Sprintf(":%d", 1545)); err != nil {
