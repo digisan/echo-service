@@ -1,5 +1,5 @@
 import { getEmitter } from './mitt.js'
-import { fetch_get } from './fetch.js'
+import { fetch_get_json } from './fetch.js'
 
 let emitter = getEmitter();
 
@@ -10,6 +10,7 @@ export default {
         const title = "Hello";
         let mypen = Vue.ref("");
         let imgsrc = Vue.ref("");
+        let timer_str = Vue.ref("");
 
         // listen to an event
         emitter.on('from_app1', e => {
@@ -25,7 +26,7 @@ export default {
 
         function fire() {
 
-            let cData = fetch_get('https://yesno.wtf/api');
+            let cData = fetch_get_json('https://yesno.wtf/api');
 
             // 'async function' return channel             
             const fnFetchValue = async () => {
@@ -43,16 +44,23 @@ export default {
             // console.log(mypen.value);
         }
 
+        let myTimer = setInterval(
+            () => { timer_str.value = (new Date()).toLocaleTimeString(); },
+            1000,
+        )
+        // clearInterval(myTimer);
+
         return {
             title,
             mypen,
             fire,
             imgsrc,
+            timer_str,
         };
     },
 
     template: `      
-        <h1>{{title}} | {{mypen}} | {{imgsrc}}</h1>
+        <h1>{{title}} | {{timer_str}} | {{mypen}} | {{imgsrc}}</h1>
         <input v-model="mypen" placeholder="input">
         <button class="mybutton" @click="fire"></button>   
         <img :src="imgsrc" alt="YES/NO IMAGE" width="320" height="240" />   
