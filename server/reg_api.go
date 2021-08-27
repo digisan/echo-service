@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/digisan/echo-service/get"
-	"github.com/digisan/echo-service/post"
+	"github.com/digisan/echo-service/server/get"
+	"github.com/digisan/echo-service/server/post"
 	"github.com/labstack/echo/v4"
 )
 

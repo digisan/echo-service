@@ -6,6 +6,7 @@ require (
 	github.com/digisan/gotk v0.0.33
 	github.com/digisan/logkit v0.0.2
 	github.com/labstack/echo/v4 v4.5.0
+	github.com/pkg/errors v0.9.1
 	github.com/postfinance/single v0.0.1
 )
 
