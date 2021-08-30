@@ -8,6 +8,7 @@ import (
 
 var mGetAPI = map[string]echo.HandlerFunc{
 	"/api/test": get.Test,
+	"/ws/test":  get.WSHello, // test for web socket
 }
 
 var mPostAPI = map[string]echo.HandlerFunc{
