@@ -1,39 +1,71 @@
 package client
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 
+	lk "github.com/digisan/logkit"
 	"github.com/pkg/errors"
+	"golang.org/x/net/http2"
 )
 
 var (
-	once      sync.Once
-	netClient *http.Client
+	once   sync.Once
+	client *http.Client
 )
+
+func tlsConfig(cert string) *tls.Config {
+	crt, err := os.ReadFile(cert)
+	lk.FailOnErr("%v", err)
+
+	rootCAs := x509.NewCertPool()
+	rootCAs.AppendCertsFromPEM(crt)
+
+	return &tls.Config{
+		RootCAs:            rootCAs,
+		InsecureSkipVerify: false,
+		ServerName:         "localhost",
+	}
+}
+
+func transport2(cert string) *http2.Transport {
+	return &http2.Transport{
+		TLSClientConfig:    tlsConfig(cert),
+		DisableCompression: false,
+		AllowHTTP:          true,
+	}
+}
 
 //
 // create a singleton http client to ensure
 // maximum reuse of connection
 //
-func newNetClient() *http.Client {
+func newClient() *http.Client {
 	once.Do(func() {
-		var netTransport = &http.Transport{
-			Dial: (&net.Dialer{
-				Timeout: 10 * time.Second,
-			}).Dial,
-			TLSHandshakeTimeout: 2 * time.Second,
-		}
-		netClient = &http.Client{
+		client = &http.Client{
 			Timeout:   time.Second * 2,
-			Transport: netTransport,
+			Transport: transport2("./cert/localhost.crt"),
 		}
 	})
-	return netClient
+	return client
+}
+
+//
+// before calling 'Fetch', init client certificate
+//
+func SetFetchCert(cert string) {
+	once.Do(func() {
+		client = &http.Client{
+			Timeout:   time.Second * 2,
+			Transport: transport2(cert),
+		}
+	})
 }
 
 //
@@ -69,7 +101,7 @@ func Fetch(method string, url string, header map[string]string, body io.Reader) 
 	}
 
 	// Perform the network call.
-	res, err := newNetClient().Do(req)
+	res, err := newClient().Do(req)
 	if err != nil {
 		return nil, err
 	}

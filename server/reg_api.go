@@ -1,29 +1,36 @@
 package main
 
 import (
-	"github.com/digisan/echo-service/server/get"
-	"github.com/digisan/echo-service/server/post"
+	"github.com/digisan/echo-service/server/api/get"
+	"github.com/digisan/echo-service/server/api/post"
+	"github.com/digisan/echo-service/server/ws"
 	"github.com/labstack/echo/v4"
 )
 
-var mGetAPI = map[string]echo.HandlerFunc{
-	"/api/test": get.Test,
-	"/ws/test":  get.WSHello, // test for web socket
+// path: handler
+var mGET = map[string]echo.HandlerFunc{
+
+	// test for web socket ***************
+	"/ws/test": ws.WSMsg,
+
+	// normal get api
+	"/api/test":    get.Test,
+	"/api/testmsg": get.TestSendMsg,
 }
 
-var mPostAPI = map[string]echo.HandlerFunc{
+var mPOST = map[string]echo.HandlerFunc{
 	"/api/test": post.DrawImage,
 }
 
-var mPutAPI = map[string]echo.HandlerFunc{
+var mPUT = map[string]echo.HandlerFunc{
 	"/api/test": nil,
 }
 
-var mDeleteAPI = map[string]echo.HandlerFunc{
+var mDELETE = map[string]echo.HandlerFunc{
 	"/api/test": nil,
 }
 
-var mPatchAPI = map[string]echo.HandlerFunc{
+var mPATCH = map[string]echo.HandlerFunc{
 	"/api/test": nil,
 }
 
@@ -33,11 +40,11 @@ func hookPathHandler(e *echo.Echo) {
 	methods := []string{"GET", "POST", "PUT", "DELETE", "PATCH"}
 
 	var mRegAPIs = map[string]map[string]echo.HandlerFunc{
-		"GET":    mGetAPI,
-		"POST":   mPostAPI,
-		"PUT":    mPutAPI,
-		"DELETE": mDeleteAPI,
-		"PATCH":  mPatchAPI,
+		"GET":    mGET,
+		"POST":   mPOST,
+		"PUT":    mPUT,
+		"DELETE": mDELETE,
+		"PATCH":  mPATCH,
 		// others...
 	}
 

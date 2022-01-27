@@ -55,9 +55,10 @@ export default {
         // web socket sample
         let ws = local_ws("ws/test"); // registered in server reg_api
         ws.onopen = function () {
-            console.log('Connected')
+            console.log('ws connected')
         }
         ws.onmessage = function (evt) {
+            console.log('ws onmessage', evt.data)
             ws_str.value = evt.data;
         }
         let idx = 0;
@@ -75,7 +76,8 @@ export default {
     },
 
     template: `      
-        <h1>{{title}} | {{timer_str}} | {{ws_str}} | {{mypen}} | {{imgsrc}}</h1>
+        <h1>{{title}} | {{timer_str}} | {{mypen}} | {{imgsrc}}</h1>
+        <h1>{{ws_str}}</h1>
         <input v-model="mypen" placeholder="input">
         <button class="mybutton" @click="fire"></button>   
         <img :src="imgsrc" alt="YES/NO IMAGE" width="320" height="240" />   

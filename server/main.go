@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/digisan/echo-service/server/ws"
 	gio "github.com/digisan/gotk/io"
 	lk "github.com/digisan/logkit"
 	"github.com/labstack/echo/v4"
@@ -44,14 +46,20 @@ func waitShutdown(e *echo.Echo) {
 		sig := make(chan os.Signal, 1)
 		signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 		<-sig // got ctrl+c
-		fmt.Println("\nGot Ctrl(c)")
+		lk.Log("Got Ctrl+C")
+
+		// other clean-up before shutting down
+		ws.BroadCast("backend service shutting down...") // testing *********************************
+		ws.CloseAllMsg()
+
+		// shutdown echo
 		failOnErr("%v", e.Shutdown(ctx)) // close http at e.Shutdown
 	}()
 }
 
 func hostHTTP(done chan<- string) {
 	go func() {
-		defer func() { done <- "HTTP Shutdown Successfully" }()
+		defer func() { done <- "HTTP/2 Shutdown Successfully" }()
 
 		e := echo.New()
 		defer e.Close()
@@ -72,8 +80,7 @@ func hostHTTP(done chan<- string) {
 		hookStatic(e)      // host static file/folder
 		waitShutdown(e)    // waiting for shutdown
 
-		if err := e.Start(fmt.Sprintf(":%d", 1545)); err != nil {
-			fmt.Println(err)
-		}
+		err := e.StartTLS(":1323", "./cert/localhost.crt", "./cert/localhost.key")
+		lk.FailOnErrWhen(err != http.ErrServerClosed, "%v", err)
 	}()
 }

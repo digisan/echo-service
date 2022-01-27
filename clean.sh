@@ -2,4 +2,5 @@
 
 set -e
 
-rm ./server/server ./client/main/main
+rm -rf ./server/server ./client/cmd/cmd
+rm -rf ./server/cert ./client/cmd/cert

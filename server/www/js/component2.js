@@ -33,12 +33,12 @@ export default {
         }
 
         setInterval(() => {
-            let cData = fetch_get('http://127.0.0.1:1545/api/test'); // fetch_get must be here
+            let cData = fetch_get('https://127.0.0.1:1323/api/test'); // fetch_get must be here
             (async () => {
                 const data = await cData;
                 svrget.value = data;
             })();
-        }, 1000);
+        }, 10000);
 
         return {
             title,
