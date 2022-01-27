@@ -50,7 +50,7 @@ func newClient() *http.Client {
 	once.Do(func() {
 		client = &http.Client{
 			Timeout:   time.Second * 2,
-			Transport: transport2("./cert/localhost.crt"),
+			Transport: transport2("./cert/cert.pem"),
 		}
 	})
 	return client

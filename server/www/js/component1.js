@@ -61,9 +61,9 @@ export default {
             console.log('ws onmessage', evt.data)
             ws_str.value = evt.data;
         }
-        let idx = 0;
+
         // trigger server to send back message, handle it in 'onmessage'
-        setTimeout(() => { ws.send('Hello, Server! ' + idx.toString()); idx++ }, 1000);
+        setTimeout(() => { ws.send('Hello, Server!'); }, 1000); // MUST delay some while !!!
 
         return {
             title,
@@ -76,7 +76,10 @@ export default {
     },
 
     template: `      
-        <h1>{{title}} | {{timer_str}} | {{mypen}} | {{imgsrc}}</h1>
+        <h1>{{title}}</h1>
+        <h1>{{timer_str}}</h1>
+        <h1>{{mypen}}</h1>
+        <h1>{{imgsrc}}</h1>
         <h1>{{ws_str}}</h1>
         <input v-model="mypen" placeholder="input">
         <button class="mybutton" @click="fire"></button>   

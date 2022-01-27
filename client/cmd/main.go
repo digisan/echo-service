@@ -7,8 +7,13 @@ import (
 	lk "github.com/digisan/logkit"
 )
 
+const (
+	addr = "https://192.168.31.157:1323"
+)
+
 func main() {
-	resp, err := Fetch("GET", "https://127.0.0.1:1323/api/testmsg", nil, nil)
+	SetFetchCert("./cert/public.pem")
+	resp, err := Fetch("GET", addr+"/api/testmsg", nil, nil)
 	lk.FailOnErr("%v", err)
-	fmt.Println("https://127.0.0.1:1323/api/testmsg", string(resp))
+	fmt.Println(addr+"/api/testmsg", string(resp))
 }

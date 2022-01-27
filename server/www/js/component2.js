@@ -33,7 +33,7 @@ export default {
         }
 
         setInterval(() => {
-            let cData = fetch_get('https://127.0.0.1:1323/api/test'); // fetch_get must be here
+            let cData = fetch_get('https://192.168.31.157:1323/api/test'); // fetch_get must be here, MUST identical to cert SN
             (async () => {
                 const data = await cData;
                 svrget.value = data;
@@ -50,7 +50,10 @@ export default {
     },
 
     template: `      
-        <h1>{{title}} | {{svrget}} | {{mypen}} | {{imgsrc}}</h1>
+        <h1>{{title}}</h1>
+        <h1>{{svrget}}</h1>
+        <h1>{{mypen}}</h1>
+        <h1>{{imgsrc}}</h1>
         <input v-model="mypen" placeholder="input">
         <button class="mybutton" @click="fire"></button>     
         <img :src="imgsrc" alt="YES/NO IMAGE" width="320" height="240" />  

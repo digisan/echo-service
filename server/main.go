@@ -80,7 +80,7 @@ func hostHTTP(done chan<- string) {
 		hookStatic(e)      // host static file/folder
 		waitShutdown(e)    // waiting for shutdown
 
-		err := e.StartTLS(":1323", "./cert/localhost.crt", "./cert/localhost.key")
+		err := e.StartTLS(":1323", "./cert/public.pem", "./cert/private.pem")
 		lk.FailOnErrWhen(err != http.ErrServerClosed, "%v", err)
 	}()
 }
