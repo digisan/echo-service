@@ -33,7 +33,7 @@ export default {
         }
 
         setInterval(() => {
-            let cData = fetch_get('https://192.168.31.157:1323/api/test'); // fetch_get must be here, MUST identical to cert SN
+            let cData = fetch_get('https://192.168.31.227:1323/api/module1/test'); // fetch_get must be here, MUST identical to cert SN
             (async () => {
                 const data = await cData;
                 svrget.value = data;

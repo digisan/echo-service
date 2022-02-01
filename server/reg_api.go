@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/digisan/echo-service/server/api/get"
-	"github.com/digisan/echo-service/server/api/post"
+	"github.com/digisan/echo-service/server/api/module1/get"
+	"github.com/digisan/echo-service/server/api/module2/post"
 	"github.com/digisan/echo-service/server/ws"
 	"github.com/labstack/echo/v4"
 )
@@ -10,12 +10,12 @@ import (
 // path: handler
 var mGET = map[string]echo.HandlerFunc{
 
-	// test for web socket ***************
-	"/ws/test": ws.WSMsg,
+	// web socket for message
+	"/ws/msg": ws.WSMsg,
 
 	// normal get api
-	"/api/test":    get.Test,
-	"/api/testmsg": get.TestSendMsg,
+	"/api/module1/test":    get.Test,
+	"/api/module1/testmsg": get.TestSendMsg,
 }
 
 var mPOST = map[string]echo.HandlerFunc{

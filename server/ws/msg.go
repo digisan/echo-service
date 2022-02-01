@@ -3,6 +3,7 @@ package ws
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	lk "github.com/digisan/logkit"
 	"github.com/labstack/echo/v4"
@@ -12,40 +13,40 @@ import (
 // after implementing, register with path in 'api_reg.go'
 
 var (
-	mIdMsg      = map[string]chan interface{}{}
-	mIdWSCancel = map[string]context.CancelFunc{}
+	mIdMsg      = &sync.Map{}
+	mIdWSCancel = &sync.Map{}
 )
 
 func SendMsg(id string, msg interface{}) bool {
-	if _, ok := mIdMsg[id]; !ok {
+	chMsg, ok := mIdMsg.Load(id)
+	if !ok {
 		return false
 	}
-	mIdMsg[id] <- msg
+	chMsg.(chan interface{}) <- msg
 	return true
 }
 
 func BroadCast(msg interface{}) {
-	for id := range mIdMsg {
-		go func(id string) {
-			SendMsg(id, msg)
-		}(id)
-	}
+	mIdMsg.Range(func(id, msg interface{}) bool {
+		go SendMsg(id.(string), msg)
+		return true
+	})
 }
 
 func CloseMsg(id string) bool {
-	if _, ok := mIdWSCancel[id]; !ok {
+	chCancel, ok := mIdWSCancel.Load(id)
+	if !ok {
 		return false
 	}
-	mIdWSCancel[id]()
+	chCancel.(context.CancelFunc)()
 	return true
 }
 
 func CloseAllMsg() {
-	for id := range mIdWSCancel {
-		go func(id string) {
-			CloseMsg(id)
-		}(id)
-	}
+	mIdWSCancel.Range(func(id, chCancel interface{}) bool {
+		go chCancel.(context.CancelFunc)()
+		return true
+	})
 }
 
 // Activate WS Msg by GET
@@ -55,12 +56,12 @@ func WSMsg(c echo.Context) error {
 	id = "id" // just for testing ***********************************
 
 	// reg a new message channel
-	mIdMsg[id] = make(chan interface{}, 1024)
+	mIdMsg.Store(id, make(chan interface{}, 1024))
 
 	// reg message channel closing
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	mIdWSCancel[id] = cancel
+	mIdWSCancel.Store(id, cancel)
 
 	websocket.Handler(func(ws *websocket.Conn) {
 		defer ws.Close()
@@ -77,12 +78,15 @@ func WSMsg(c echo.Context) error {
 		done := make(chan struct{})
 		go func(ctx context.Context, done chan<- struct{}) {
 			defer func() { done <- struct{}{} }()
-			for {
-				select {
-				case msg := <-mIdMsg[id]:
-					lk.WarnOnErr("%v", websocket.Message.Send(ws, fmt.Sprintf("From WS Server! --- %v", msg)))
-				case <-ctx.Done():
-					return
+			if IChMsg, ok := mIdMsg.Load(id); ok {
+				chMsg := IChMsg.(chan interface{})
+				for {
+					select {
+					case msg := <-chMsg:
+						lk.WarnOnErr("%v", websocket.Message.Send(ws, fmt.Sprintf("From WS Server! --- %v", msg)))
+					case <-ctx.Done():
+						return
+					}
 				}
 			}
 		}(ctx, done)
