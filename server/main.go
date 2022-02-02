@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -18,9 +19,13 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
+var (
+	fHttp2 = false
+)
+
 // @title Swagger Example API
 // @version 1.0
-// @description This is a sample server Petstore server.
+// @description This is a sample server.
 // @termsOfService
 // @contact.name API Support
 // @contact.url
@@ -30,6 +35,11 @@ import (
 // @host 127.0.0.1:1323
 // @BasePath
 func main() {
+
+	http2Ptr := flag.Bool("http2", false, "http2 mode?")
+	flag.Parse()
+	fHttp2 = *http2Ptr
+
 	// Only One Instance
 	const dir = "./tmp-locker"
 	gio.MustCreateDir(dir)
@@ -39,12 +49,12 @@ func main() {
 	defer func() {
 		lk.FailOnErr("%v", one.Unlock())
 		os.RemoveAll(dir)
-		fmt.Println("Program Exited")
+		fmt.Println("Server Exited Successfully")
 	}()
 
 	// Start Service
 	done := make(chan string)
-	hostHTTP(done)
+	echoHost(done)
 	fmt.Println(<-done)
 }
 
@@ -58,17 +68,17 @@ func waitShutdown(e *echo.Echo) {
 		lk.Log("Got Ctrl+C")
 
 		// other clean-up before shutting down
-		ws.BroadCast("backend service shutting down...") // testing *********************************
+		ws.BroadCast("backend service shutting down...") // testing
 		ws.CloseAllMsg()
 
 		// shutdown echo
-		lk.FailOnErr("%v", e.Shutdown(ctx)) // close http at e.Shutdown
+		lk.FailOnErr("%v", e.Shutdown(ctx)) // close echo at e.Shutdown
 	}()
 }
 
-func hostHTTP(done chan<- string) {
+func echoHost(done chan<- string) {
 	go func() {
-		defer func() { done <- "HTTP/2 Shutdown Successfully" }()
+		defer func() { done <- "Echo Shutdown Successfully" }()
 
 		e := echo.New()
 		defer e.Close()
@@ -89,11 +99,17 @@ func hostHTTP(done chan<- string) {
 		hookStatic(e)      // host static file/folder
 		waitShutdown(e)    // waiting for shutdown
 
+		// host swagger
+		// http://localhost:1323/swagger/index.html
 		e.GET("/swagger/*", echoSwagger.WrapHandler)
 
-		err := e.Start(":1323")
-		// err := e.StartTLS(":1323", "./cert/public.pem", "./cert/private.pem")
-
+		// running...
+		var err error
+		if fHttp2 {
+			err = e.StartTLS(":1323", "./cert/public.pem", "./cert/private.pem")
+		} else {
+			err = e.Start(":1323")
+		}
 		lk.FailOnErrWhen(err != http.ErrServerClosed, "%v", err)
 	}()
 }

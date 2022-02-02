@@ -1,4 +1,4 @@
-package get
+package module1
 
 import (
 	"fmt"
@@ -13,17 +13,17 @@ import (
 
 // @Title Test
 // @Description Get Random Number
-// -- @Accept json
-// @Param name formData string true "Name"
-// @Param age formData int true "Age"
-// @Success 200 "获取信息成功"
-// @Failure 400 "获取信息失败"
-// @Router /api/test [get]
+// @Success 200 "OK"
+// @Router /api/module1/test [get]
 func Test(c echo.Context) error {
 	num := rand.Intn(100)
 	return c.String(http.StatusOK, fmt.Sprintf("GET test a random number: %d", num))
 }
 
+// @Title Test WS Message
+// @Description Get Random Number
+// @Success 200 "OK"
+// @Router /api/module1/testmsg [get]
 func TestSendMsg(c echo.Context) error {
 	num := rand.Intn(100)
 	ws.SendMsg("id", num)
