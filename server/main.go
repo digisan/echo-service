@@ -91,7 +91,9 @@ func hostHTTP(done chan<- string) {
 
 		e.GET("/swagger/*", echoSwagger.WrapHandler)
 
-		err := e.StartTLS(":1323", "./cert/public.pem", "./cert/private.pem")
+		err := e.Start(":1323")
+		// err := e.StartTLS(":1323", "./cert/public.pem", "./cert/private.pem")
+
 		lk.FailOnErrWhen(err != http.ErrServerClosed, "%v", err)
 	}()
 }
